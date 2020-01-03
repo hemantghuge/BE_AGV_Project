@@ -24,7 +24,7 @@ def main():
         size = original_size 
         resize_img = img
 
-        while not(size < 300):
+        while not(size < 300): #threshold 300 kilobytes
             
             width = int(resize_img.shape[1] * scale_percent / 100) #finding width value
             height = int(resize_img.shape[0] * scale_percent / 100) #finding height value
