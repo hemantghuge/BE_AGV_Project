@@ -27,9 +27,14 @@ while(video_capture.isOpened()):
 
     _, contours, _ = cv.findContours(thresh.copy(), 1, cv.CHAIN_APPROX_NONE)
 
+
     cv.imshow('frame', frame)
     cv.imshow('gray', gray)
     cv.imshow('thresh', thresh)
+    
+    end = time.time()
+    print("time execution " + str(end-start))
+    print("frames per sec " + str(1/(end-start)))
 
     if cv.waitKey(1) & 0x77 == ord('q'):
         break
