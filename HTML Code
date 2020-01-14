@@ -1,0 +1,46 @@
+<h1>Automated Guided Vehicle</h1>
+
+
+<button onclick="myFunction1()">Start</button>
+<p id="id1"></p>
+
+<script>
+function myFunction1(){
+  document.getElementById("id1").innerHTML = "Enter Starting Station";
+}
+</script>
+
+<input type="number" id="myNumber" value="0">
+
+<button onclick="myFunction()">Result1</button>
+
+<p id="demo"></p>
+
+<script>
+function myFunction2() {
+  confirm("Start journey from entered station");
+}
+</script>
+
+
+<button onclick="myFunction3()">End</button>
+<p id="id2"></p>
+
+
+<script>
+function myFunction3() {
+  document.getElementById("id2").innerHTML = "Enter Destination Station";
+}
+</script>
+
+<input type="number" id="myNumber" value="0">
+
+<button onclick="myFunction()">Result2</button>
+
+<p id="demo"></p>
+
+<script>
+function myFunction() {
+  confirm("End journey to entered station");
+}
+</script>
