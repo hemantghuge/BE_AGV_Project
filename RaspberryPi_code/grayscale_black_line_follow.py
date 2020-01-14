@@ -22,9 +22,14 @@ while(video_capture.isOpened()):
     ret, frame = video_capture.read()
 
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    
+    _, thresh = cv.threshold(gray, 100, 255,cv.THRESH_BINARY_INV)
+
+    _, contours, _ = cv.findContours(thresh.copy(), 1, cv.CHAIN_APPROX_NONE)
 
     cv.imshow('frame', frame)
     cv.imshow('gray', gray)
+    cv.imshow('thresh', thresh)
 
     if cv.waitKey(1) & 0x77 == ord('q'):
         break
