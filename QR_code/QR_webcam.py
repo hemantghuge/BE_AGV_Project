@@ -1,3 +1,5 @@
+#Use https://www.the-qrcode-generator.com/ website to generate QR code.
+
 import cv2
 import numpy as np
 import pyzbar.pyzbar as pyzbar
