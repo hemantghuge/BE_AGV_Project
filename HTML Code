@@ -12,7 +12,7 @@ function myFunction1(){
 
 <input type="number" id="myNumber" value="0">
 
-<button onclick="myFunction()">Result1</button>
+<button onclick="myFunction2()">Result1</button>
 
 <p id="demo"></p>
 
