@@ -3,7 +3,7 @@ import cv2 as cv
 import time
 
 #16:9
-width = 640
+width = 854 
 height = 480
 fps = 30
 percent = 100
@@ -41,7 +41,39 @@ while(video_capture.isOpened()):
 
     _, contours, _ = cv.findContours(thresh.copy(), 1, cv.CHAIN_APPROX_NONE)
 
-    
+    if len(contours) > 0:
+        con = max(contours, key = cv.contourArea)
+        area = cv.contourArea(con)
+        print('area = ' + str(area))
+        
+        M = cv.moments(con)
+
+        if M['m00'] == 0:
+            M['m00'] = 0.0000001;
+
+        cx = int(M['m10']/M['m00'])
+        cy = int(M['m01']/M['m00'])
+
+        cv.line(crop_img,(cx,0),(cx,height), (255,0,0),1)
+        cv.line(crop_img,(0,cy),(width,cy), (255,0,0),1)
+
+        cv.drawContours(crop_img, con, -1, (0,255,0), 3) #con=max(contours)
+
+        if cx <= width/3:
+            print ('left')
+
+        elif cx > width/3 and cx < width*(2/3):
+            print ('On Track')
+
+        elif cx >= width*(2/3):
+            print ('Right')
+        
+        else:
+            print('Nothing')
+            
+    else:
+        print ('I don\'t see the contour') 
+
     show_graphics()
 
     end = time.time()
