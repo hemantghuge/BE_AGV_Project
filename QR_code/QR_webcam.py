@@ -1,8 +1,8 @@
 #use https://www.the-qrcode-generator.com/ website to generate QR code.
 """
 Project Name: Smart and Efficient Techniques for Automated Guided Vehicles
-Author List: Unnati
-Filename: qr_web_01.py
+Author List: Unnati R Kulkarni
+Filename: QR_webcam.py
 Functions: cap.read(), pyzbar.decode(frame), cap.release(), cv2.destroyAllWindows()
 Libraries: pyzbar, numpy
 """
