@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np 
 import cv2 as cv
 import time
 
@@ -13,8 +13,8 @@ video_capture.set(4,height)
 video_capture.set(5,fps)
 
 fourcc = cv.VideoWriter_fourcc(*'XVID')
-out = cv.VideoWriter('videoAfterProcessing.avi',fourcc, fps, (width,height))
-out1 = cv.VideoWriter('videoThreshold.avi', fourcc, fps, (width,height))
+#out = cv.VideoWriter('videoAfterProcessing.avi',fourcc, fps, (width,height))
+#out1 = cv.VideoWriter('videoThreshold.avi', fourcc, fps, (width,height))
 video_capture.set(cv.CAP_PROP_FOURCC,cv.VideoWriter_fourcc(*'MJPG'))
 
 
@@ -36,11 +36,14 @@ while(video_capture.isOpened()):
     ret, frame = video_capture.read()
 
     crop_img = rescale_frame(frame, percent)
-
+    
+    #BGR2GRAY conversion
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     
+    #Normal Thresholding
     _, thresh = cv.threshold(gray, 100, 255,cv.THRESH_BINARY_INV)
-
+    
+    #Finding Contours
     _, contours, _ = cv.findContours(thresh.copy(), 1, cv.CHAIN_APPROX_NONE)
 
     if len(contours) > 0:
@@ -53,33 +56,32 @@ while(video_capture.isOpened()):
         if M['m00'] == 0:
             M['m00'] = 0.0000001;
 
+        #cx -> center point of x-axis
         cx = int(M['m10']/M['m00'])
+        #cy -> center point of y-axis
         cy = int(M['m01']/M['m00'])
 
         cv.line(crop_img,(cx,0),(cx,height), (255,0,0),3)
         cv.line(crop_img,(0,cy),(width,cy), (255,0,0),3)
 
         cv.drawContours(crop_img, con, -1, (0,255,0), 3) #con=max(contours)
-
+        
         if cx <= width/3:
             print ('left')
-
         elif cx > width/3 and cx < width*(2/3):
             print ('On Track')
-
         elif cx >= width*(2/3):
             print ('Right')
-        
         else:
-            print('Nothing')
+            print('x-axis point not in frame')
             
     else:
         print ('I don\'t see the contour') 
 
-    show_graphics()
+    show_graphics() #Calling show_graphics() function
     
-    out.write(crop_img)
-    out1.write(thresh)
+    #out.write(crop_img) #saving frame named crop_img
+    #out1.write(thresh) #saving frame named thresh
 
     end = time.time()
     print("time execution " + str(end-start))
@@ -89,6 +91,7 @@ while(video_capture.isOpened()):
         break
 
 #video_capture.release()
-out.release()
-out1.release()
+#out.release()
+#out1.release()
+video_capture.release()
 cv.destroyAllWindows()
