@@ -1,4 +1,6 @@
-// digital pin 2 has a pushbutton attached to it. Give it a name:
+// Parallel communication between Arduino Mega and Raspberry Pi
+
+// ra = raspi to arduino mega data transmission
 int ra1 = A4;
 int ra2 = A5;
 int ra3 = A6;
@@ -9,6 +11,7 @@ int ra6 = A9;
 int ra7 = A10;
 int ra8 = A11;
 
+// ar = arduino mega to raspi data transmission 
 int ar1 = 32;
 int ar2 = 33;
 int ar3 = 34;
@@ -19,7 +22,8 @@ int ar4 = 35;
 void setup() {
   // initialize serial communication at 9600 bits per second:
   Serial.begin(9600);
-  // make the pushbutton's pin an input:
+  
+  // Enabling raspi to arduino mega pins as OUTPUT
   pinMode(ra1, INPUT);
   pinMode(ra2, INPUT);
   pinMode(ra3, INPUT);
@@ -30,6 +34,7 @@ void setup() {
   pinMode(ra7, INPUT);
   pinMode(ra8, INPUT);
 
+  // Enabling arduino mega to raspi pins as INPUT
   pinMode(ar1, OUTPUT);
   pinMode(ar2, OUTPUT);
   pinMode(ar3, OUTPUT);
@@ -57,7 +62,7 @@ void loop() {
   digitalWrite(ar3, signal_value);
   digitalWrite(ar4, signal_value);
     
-  // print out the state of the button:
+  // print out the state of the pin:
   Serial.print(" ra1State = ");
   Serial.print(ra1State);
   Serial.print(" ra2State = ");
