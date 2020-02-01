@@ -1,23 +1,17 @@
-import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO #importing GPIO Python Package
 import time
 
 GPIO.setwarnings(False)
 
-GPIO.setmode(GPIO.BOARD)
-ra1 = 31;
-ra2 = 32;
-ra3 = 33;
-ra4 = 35;
+GPIO.setmode(GPIO.BOARD) #GPIO mode is set to BOARD and not to BCM
+pin = 10; #change number for testing all GPIO of Raspberry Pi
 
-ra5 = 36;
-ra6 = 37;
-ra7 = 38;
-ra8 = 40;
+#Raspberry Pi is 3.3V compatible so it's max voltage is 3.3V
 
+# enabling GPIO as OUTPUT
 GPIO.setup(pin,GPIO.OUT)
-
 GPIO.output(pin,GPIO.LOW)
 
-
+# enabling GPIO as INPUT
 GPIO.setup(pin, GPIO.IN)
 state = GPIO.input(pin)
