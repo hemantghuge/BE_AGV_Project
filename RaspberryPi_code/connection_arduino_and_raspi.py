@@ -1,11 +1,13 @@
-import RPi.GPIO as GPIO
+#Parallel communication between Arduino Mega and Raspberry Pi
+import RPi.GPIO as GPIO #importing GPIO Python Package
 import time
 
-GPIO.setwarnings(False)
+GPIO.setwarnings(False) #disable GPIO related warning
 
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BOARD) #GPIO mode is set to BOARD and not to BCM
 
-ra1 = 31
+#ra = raspi to arduino mega data transmission
+ra1 = 31 
 ra2 = 32
 ra3 = 33
 ra4 = 35
@@ -15,11 +17,13 @@ ra6 = 37
 ra7 = 38
 ra8 = 40
 
+#ar = arduino mega to raspi data transmission 
 ar1 = 13
 ar2 = 15
 ar3 = 16
 ar4 = 18
 
+#Enabling raspi to arduino mega pins as OUTPUT
 GPIO.setup(ra1,GPIO.OUT)
 GPIO.setup(ra2,GPIO.OUT)
 GPIO.setup(ra3,GPIO.OUT)
@@ -30,12 +34,14 @@ GPIO.setup(ra6,GPIO.OUT)
 GPIO.setup(ra7,GPIO.OUT)
 GPIO.setup(ra8,GPIO.OUT)
 
+#Enabling arduino mega to raspi pins as INPUT
 GPIO.setup(ar1,GPIO.IN)
 GPIO.setup(ar2,GPIO.IN)
 GPIO.setup(ar3,GPIO.IN)
 GPIO.setup(ar4,GPIO.IN)
 
-signal_value = GPIO.HIGH
+#storing logic in signal_name variable
+signal_value = GPIO.HIGH 
 
 while True:
 
