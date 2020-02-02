@@ -33,6 +33,27 @@ def show_graphics():
     cv.imshow('thresh', thresh)
     return 0
 
+def calculate_angle(points):
+            
+    blackbox = cv.minAreaRect(points)
+    #print('blackbox= '+ str(blackbox))
+    (x_min, y_min), (w_min, h_min), ang = blackbox
+
+    if ang < -45 :
+        ang = 90 + ang
+          
+    if w_min < h_min and ang > 0:    
+        ang = (90-ang)*-1
+                      
+    if w_min > h_min and ang < 0:
+        ang = 90 + ang
+            
+    ang = int(ang)
+    print('ang = '+ str(ang))
+    cv.putText(crop_img, 'Angle ='+ str(ang),(300,50), cv.FONT_HERSHEY_SIMPLEX, 2, (20, 20, 250), 3)
+        
+    return(ang)
+
 while(video_capture.isOpened()):
     
     start = time.time()
@@ -54,6 +75,8 @@ while(video_capture.isOpened()):
         con = max(contours, key = cv.contourArea)
         area = cv.contourArea(con)
         print('area = ' + str(area))
+        
+        ang = calculate_angle(con)
         
         M = cv.moments(con)
 
