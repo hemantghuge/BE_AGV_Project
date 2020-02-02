@@ -21,6 +21,8 @@ video_capture.set(cv.CAP_PROP_FOURCC,cv.VideoWriter_fourcc(*'MJPG'))
 
 font = cv.FONT_HERSHEY_PLAIN #font to be displayed on screen
 
+area_threshold = 20000
+
 
 def rescale_frame(frame, percent):
     width = int(frame.shape[1]*percent/100)
@@ -50,9 +52,25 @@ def calculate_angle(points):
             
     ang = int(ang)
     print('ang = '+ str(ang))
-    cv.putText(crop_img, 'Angle ='+ str(ang),(300,50), cv.FONT_HERSHEY_SIMPLEX, 2, (20, 20, 250), 3)
+    cv.putText(crop_img, 'Angle ='+ str(ang),(400,50), cv.FONT_HERSHEY_SIMPLEX, 1, (20, 20, 250), 3)
         
     return(ang)
+
+def line_follow(cx):
+    if cx <= width/3:
+        print ('left')
+    elif cx > width/3 and cx < width*(2/3):
+        print ('On Track')
+    elif cx >= width*(2/3):
+        print ('Right')
+    else:
+        print('x-axis point not in frame')
+    #return flag    
+    
+        
+def transfer_Angle(ang):
+    print('In Transfer Angle Function')
+
 
 while(video_capture.isOpened()):
     
@@ -75,41 +93,43 @@ while(video_capture.isOpened()):
         con = max(contours, key = cv.contourArea)
         area = cv.contourArea(con)
         print('area = ' + str(area))
-        
-        ang = calculate_angle(con)
-        
-        M = cv.moments(con)
 
-        if M['m00'] == 0:
-            M['m00'] = 0.0000001;
+        if (area > area_threshold):
+            
+            ang = calculate_angle(con)
+            
+            M = cv.moments(con)
 
-        #cx -> center point of x-axis
-        cx = int(M['m10']/M['m00'])
-        #cy -> center point of y-axis
-        cy = int(M['m01']/M['m00'])
+            if M['m00'] == 0:
+                M['m00'] = 0.0000001;
 
-        cv.line(crop_img,(cx,0),(cx,height), (255,0,0),3)
-        cv.line(crop_img,(0,cy),(width,cy), (255,0,0),3)
+            #cx -> center point of x-axis
+            cx = int(M['m10']/M['m00'])
+            #cy -> center point of y-axis
+            cy = int(M['m01']/M['m00'])
 
-        cv.drawContours(crop_img, con, -1, (0,255,0), 3) #con=max(contours)
-        
-        if cx <= width/3:
-            print ('left')
-        elif cx > width/3 and cx < width*(2/3):
-            print ('On Track')
-        elif cx >= width*(2/3):
-            print ('Right')
+            cv.line(crop_img,(cx,0),(cx,height), (255,0,0),3)
+            cv.line(crop_img,(0,cy),(width,cy), (255,0,0),3)
+
+            cv.drawContours(crop_img, con, -1, (0,255,0), 3) #con=max(contours)
+            
+            flag_line = line_follow(cx)
+            
+            #transfer Angle value to through GPIO
+            transfer_Angle(ang)
+            
         else:
-            print('x-axis point not in frame')
+            print('Area less than threshold value i.e.' + str(area_threshold))
             
     else:
         print ('I don\'t see the contour')
         
     decodedObjects = pyzbar.decode(crop_img)
     for obj in decodedObjects:
-        
+        print('QR FOUND')
         cv.putText(crop_img, str(obj.data), (50, 50), font, 2,
                     (255, 0, 0), 3)  #inserting text on the frame
+        
 
     show_graphics() #Calling show_graphics() function
     
