@@ -121,7 +121,7 @@ void loop() {
   Serial.println(yaw);
   if (SER_IP == 'X')
   {
-    setpoint = (setpoint + 10);
+    setpoint = (setpoint + 90);
   }
 
   if (Serial1.available() > 0)
