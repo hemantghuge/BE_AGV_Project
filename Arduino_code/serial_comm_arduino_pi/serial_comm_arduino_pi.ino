@@ -7,8 +7,10 @@ Serial.begin(9600);
 
 void loop(){
 if (Serial3.available()) {
-number = Serial3.read();
+String number = Serial3.readString();
+int num = number.toInt();
 Serial.print("character recieved: ");
 Serial.println(number);
+Serial.println(num);
 }
 }
