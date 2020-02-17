@@ -1,0 +1,92 @@
+
+<head>
+<style>
+body {
+  background-color: lightblue;
+}
+
+p {
+  color: Black;
+  text-align: center;
+}
+
+p {
+  font-family: Times new roman;
+  font-size: 20px;
+}
+</style>
+</head>
+<body>
+
+
+
+
+<center><h1>Automated Guided Vehicle</h1><center>
+
+<center>
+<button onclick="myFunction1()">Start</button><center>
+<p id="id1"></p>
+
+<script>
+function myFunction1()
+{
+  document.getElementById("id1").innerHTML ="Enter Starting Station";
+}
+</script>
+<br> 
+<input type="number" id="myNumber" value="0">
+<button onclick="myFunction2()">Result1</button>
+<p id="id3"></p>
+<script src="jquery.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$(".led").click(function(){
+				var p = $(this).attr('id3'); // get id value (i.e. starting station no.)
+				// send HTTP GET request to the IP address with the parameter "pin" and value "p", then execute the function
+				$.get("http://192.168.4.1:80/", {pin:p}); // execute get request
+			});
+		});
+	</script>
+
+<script>
+function myFunction2() 
+{
+  confirm("Start journey from entered station");
+}
+</script>
+
+<br>
+
+<button onclick="myFunction3()">End</button>
+<p id="id2"></p>
+<script>
+function myFunction3() 
+{
+  document.getElementById("id2").innerHTML = "Enter Destination Station";
+}
+</script>
+
+
+<input type="number" id="myNumber" value="0">
+<button onclick="myFunction()">Result2</button>
+<p id="id4"></p>
+<script src="jquery.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$(".led").click(function(){
+				var p = $(this).attr('id4'); // get id value (i.e. ending station no.)
+				// send HTTP GET request to the IP address with the parameter "pin" and value "p", then execute the function
+				$.get("http://192.168.43:198/", {pin:p}); // execute get request
+			});
+		});
+	</script>
+<script>
+function myFunction() 
+{
+  confirm("End journey to entered station");
+}
+</script>
+<br>
+
+
+
