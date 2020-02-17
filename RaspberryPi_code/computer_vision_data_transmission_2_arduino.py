@@ -24,7 +24,7 @@ video_capture.set(cv.CAP_PROP_FOURCC,cv.VideoWriter_fourcc(*'MJPG'))
 
 font = cv.FONT_HERSHEY_PLAIN #font to be displayed on screen
 
-area_threshold = 20000
+area_threshold = 15000
 
 
 def rescale_frame(frame, percent):
@@ -83,6 +83,12 @@ while(video_capture.isOpened()):
 
     crop_img = rescale_frame(frame, percent)
     
+    decodedObjects = pyzbar.decode(crop_img)
+    for obj in decodedObjects:
+        print('QR FOUND')
+        cv.putText(crop_img, str(obj.data), (50, 50), font, 2, (255, 0, 0), 3)  #inserting text on the frame
+        time.sleep(5)
+    
     #BGR2GRAY conversion
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     
@@ -125,14 +131,7 @@ while(video_capture.isOpened()):
             print('Area less than threshold value i.e.' + str(area_threshold))
             
     else:
-        print ('I don\'t see the contour')
-        
-    decodedObjects = pyzbar.decode(crop_img)
-    for obj in decodedObjects:
-        print('QR FOUND')
-        cv.putText(crop_img, str(obj.data), (50, 50), font, 2,
-                    (255, 0, 0), 3)  #inserting text on the frame
-        
+        print ('I don\'t see the contour')        
 
     show_graphics() #Calling show_graphics() function
     
