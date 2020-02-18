@@ -3,3 +3,6 @@ git
 AGV
 new
 testing file
+
+test 1
+ready
