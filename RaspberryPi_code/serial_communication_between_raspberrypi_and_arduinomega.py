@@ -5,18 +5,24 @@ import time,sys
 SERIAL_PORT = "/dev/ttyS0"
 ser = serial.Serial(SERIAL_PORT, baudrate = 9600)
 
-a = '90'
-b = '5'
-c = '7'
+# 0 - negative
+# 1 - positive
 
-ser.write(b'100')
-print('ninty')
+angle = 90
+
+if angle < 0:
+    sign = 0
+    angle = -angle
+else:
+    sign = 1
+    angle = angle
+
+angle_str = str(int(angle))
+sign_str = str(int(sign))
+ser.write(angle_str.encode())
+print(angle_str)
 ser.close()
 ser.open()
-ser.write(b.encode())
-print('five')
-ser.close()
-ser.open()
-ser.write(c.encode())
-print('seven')
+ser.write(sign_str.encode())
+print(sign_str)
 ser.close()
