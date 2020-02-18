@@ -1,9 +1,14 @@
 # Python program to illustrate HoughLine 
 # method for line detection 
 import cv2 as cv
-import numpy as np 
-import time
-  
+import numpy as np
+import serial
+import RPi.GPIO as GPIO
+import time,sys
+
+SERIAL_PORT = "/dev/ttyS0"
+ser = serial.Serial(SERIAL_PORT, baudrate = 9600)
+
 width = 640
 height = 480
 fps = 30
@@ -32,6 +37,12 @@ def show_graphics():
     cv.imshow('crop_img',crop_img)
     cv.imshow('edges', edges)
     return 0
+
+def data_transmission(angle):
+    ser.write(angle.encode())
+    print('data tranmission')
+    ser.close()
+    ser.open()
 
 while(video_capture.isOpened()):
     
@@ -95,9 +106,15 @@ while(video_capture.isOpened()):
             else:
                 angle = 999
             
-            print('angle = '+ str(angle))
+            #print('angle = '+ str(angle))
               
     show_graphics() #Calling show_graphics() function
+    
+    angle_int = int(angle)
+    #print('angle_int = '+str(angle_int))
+    angle_str = str(angle_int)
+    print('angle_str = '+ str(angle_str))
+    data_transmission(angle_str)
     
     end = time.time()
     print("time execution " + str(end-start))
