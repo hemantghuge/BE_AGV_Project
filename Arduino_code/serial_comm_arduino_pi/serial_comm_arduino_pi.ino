@@ -1,9 +1,10 @@
 byte angle_str = 0;
 int angle;
-byte qr;
-
 byte sign_str = 0;
 int sign;
+byte qr;
+byte x_pos_str;
+int x_pos;
 
 void setup() {
   Serial3.begin(9600);
@@ -20,7 +21,10 @@ void loop() {
     int sign = sign_str.toInt();
     delay(20);
     String qr = Serial3.readString();
-
+    delay(20);
+    String x_pos_str = Serial3.readString();
+    int x_pos = x_pos_str.toInt();
+    
     if (sign == 0) {
       angle = -angle;
     }
@@ -31,9 +35,9 @@ void loop() {
       Serial.println("Sign Error");
     }
 
-
     Serial.println("character received: ");
     Serial.println(angle);
     Serial.println(qr);
+    Serial.println(x_pos);
   }
 }
