@@ -24,7 +24,7 @@ int D7 = 31;
 int Green = 23;
 int Red = 24;
 int Blue = 25;
-int VL = 0;
+int VL = 4;
 int Buzzer = 49;
 int servo = 12;
 int count = 1;
@@ -141,6 +141,9 @@ void loop() {
     int sign = sign_str.toInt();
     delay(20);
     String qr = Serial3.readString();
+    delay(20);
+    String x_pos_str = Serial3.readString();
+    int x_pos = x_pos_str.toInt();
 
     if (sign == 0) {
       angle = -angle;
@@ -152,22 +155,48 @@ void loop() {
       Serial.println("Sign Error");
     }
 
-
     Serial.println("character received: ");
     Serial.println(angle);
     Serial.println(qr);
+    Serial.println(x_pos);
   }
-  
-  if (SER_IP == 'F')
+
+  //  if (SER_IP == 'F')
+  //  {
+  //    theta = 90 * M_PI / 180;
+  //    count = 1;
+  //  }
+  //  if (SER_IP == 'B')
+  //  {
+  //    theta = 270 * M_PI / 180;
+  //    count = 1;
+  //  }
+
+  if (x_pos == 1) // Bot at extreme left
   {
-    theta = 90 * M_PI / 180;
-    count = 1;
+
   }
-  if (SER_IP == 'B')
+
+  else if (x_pos == 2) // Bot at slight left
   {
-    theta = 270 * M_PI / 180;
-    count = 1;
+
   }
+
+  else if (x_pos == 3) // Bot at center 
+  {
+
+  }
+
+  else if (x_pos == 4) Bot at slight right
+  {
+
+  }
+
+  else if (x_pos == 5) // Bot at extreme right
+  {
+
+  }
+
   if (SER_IP == 'L')
   {
     theta = 180 * M_PI / 180;
@@ -208,51 +237,51 @@ void loop() {
     delay(20);
   }
 
-  if (SER_IP >= '1' && SER_IP <= '9')
-  {
-    VL = SER_IP ;
-    count = 1;
-  }
-  if (SER_IP == 'W')
-  {
-    digitalWrite(Green, HIGH);
-    digitalWrite(Red, HIGH);
-    digitalWrite(Blue, HIGH);
-    count = 1;
-  }
-  if (SER_IP == 'w')
-  {
-
-    digitalWrite(Green, LOW);
-    digitalWrite(Red, LOW);
-    digitalWrite(Blue, LOW);
-    count = 1;
-
-  }
-  if (SER_IP == 'U')
-  {
-
-    digitalWrite(Red, HIGH);
-    count = 1;
-
-  }
-  if (SER_IP == 'u')
-  {
-
-    digitalWrite(Red, LOW);
-    count = 1;
-
-  }
-  if (SER_IP == 'V')
-  {
-    digitalWrite(Buzzer, LOW);
-    count = 1;
-  }
-  if (SER_IP == 'v')
-  {
-    digitalWrite(Buzzer, HIGH);
-    count = 1;
-  }
+  //  if (SER_IP >= '1' && SER_IP <= '9')
+  //  {
+  //    VL = SER_IP ;
+  //    count = 1;
+  //  }
+  //  if (SER_IP == 'W')
+  //  {
+  //    digitalWrite(Green, HIGH);
+  //    digitalWrite(Red, HIGH);
+  //    digitalWrite(Blue, HIGH);
+  //    count = 1;
+  //  }
+  //  if (SER_IP == 'w')
+  //  {
+  //
+  //    digitalWrite(Green, LOW);
+  //    digitalWrite(Red, LOW);
+  //    digitalWrite(Blue, LOW);
+  //    count = 1;
+  //
+  //  }
+  //  if (SER_IP == 'U')
+  //  {
+  //
+  //    digitalWrite(Red, HIGH);
+  //    count = 1;
+  //
+  //  }
+  //  if (SER_IP == 'u')
+  //  {
+  //
+  //    digitalWrite(Red, LOW);
+  //    count = 1;
+  //
+  //  }
+  //  if (SER_IP == 'V')
+  //  {
+  //    digitalWrite(Buzzer, LOW);
+  //    count = 1;
+  //  }
+  //  if (SER_IP == 'v')
+  //  {
+  //    digitalWrite(Buzzer, HIGH);
+  //    count = 1;
+  //  }
 
   V = map(VL , 49, 58, 0, 255);
   if (V == -1388)
