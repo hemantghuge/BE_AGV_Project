@@ -24,7 +24,10 @@ int D7 = 31;
 int Green = 23;
 int Red = 24;
 int Blue = 25;
-int VL = 4;
+int normal = 4;
+int slight = 2;
+int extreme = 3;
+int VL = normal;
 int Buzzer = 49;
 int servo = 12;
 int count = 1;
@@ -35,6 +38,7 @@ int angle;
 byte sign_str = 0;
 int sign;
 byte qr;
+byte x_pos;
 
 // LCD pin declaration
 LiquidCrystal lcd(26, 27, 28, 29, 30, 31);
@@ -174,68 +178,74 @@ void loop() {
 
   if (x_pos == 1) // Bot at extreme left
   {
-
+    VL = extreme;
+    theta = 0 * M_PI / 180; //shift bot right
   }
 
   else if (x_pos == 2) // Bot at slight left
   {
-
+    VL = slight;
+    theta = 0 * M_PI / 180; //shift bot right
   }
 
-  else if (x_pos == 3) // Bot at center 
+  else if (x_pos == 3) // Bot at center
   {
-
+    VL = normal;
+    theta = 90 * M_PI / 180;
   }
 
-  else if (x_pos == 4) Bot at slight right
+  else if (x_pos == 4) // Bot at slight right
   {
-
+    VL = slight;
+    theta = 180 * M_PI / 180;
   }
 
   else if (x_pos == 5) // Bot at extreme right
   {
-
-  }
-
-  if (SER_IP == 'L')
-  {
+    VL = extreme;
     theta = 180 * M_PI / 180;
-    count = 1;
   }
-  if (SER_IP == 'R')
-  {
-    theta = 0 * M_PI / 180;
-    count = 1;
-  }
-  if (SER_IP == 'G')
-  {
-    theta = 135 * M_PI / 180;
-    count = 1;
-  }
-  if (SER_IP == 'I')
-  {
-    theta = 45 * M_PI / 180;
-    count = 1;
-  }
-  if (SER_IP == 'H')
-  {
-    //    theta = 225 * M_PI / 180;
-    //    count = 1;
-    digitalWrite(servo, HIGH);
-    delayMicroseconds(2300);
-    digitalWrite(servo, LOW);
-    delay(20);
 
-  }
-  if (SER_IP == 'J')
-  {
-    //    theta = 315 * M_PI / 180;
-    //    count = 1;
-    digitalWrite(servo, HIGH);
-    delayMicroseconds(1500);
-    digitalWrite(servo, LOW);
-    delay(20);
-  }
+  //  if (SER_IP == 'L')
+  //  {
+  //    theta = 180 * M_PI / 180;
+  //    count = 1;
+  //  }
+  //  if (SER_IP == 'R')
+  //  {
+  //    theta = 0 * M_PI / 180;
+  //    count = 1;
+  //  }
+  //  if (SER_IP == 'G')
+  //  {
+  //    theta = 135 * M_PI / 180;
+  //    count = 1;
+  //  }
+  //  if (SER_IP == 'I')
+  //  {
+  //    theta = 45 * M_PI / 180;
+  //    count = 1;
+  //  }
+//  if (SER_IP == 'H')
+//  {
+//    //    theta = 225 * M_PI / 180;
+//    //    count = 1;
+//    digitalWrite(servo, HIGH);
+//    delayMicroseconds(2300);
+//    digitalWrite(servo, LOW);
+//    delay(20);
+//
+//  }
+
+//  if (SER_IP == 'J')
+//  {
+//    //    theta = 315 * M_PI / 180;
+//    //    count = 1;
+//    digitalWrite(servo, HIGH);
+//    delayMicroseconds(1500);
+//    digitalWrite(servo, LOW);
+//    delay(20);
+//  }
 
   //  if (SER_IP >= '1' && SER_IP <= '9')
   //  {
@@ -249,6 +259,7 @@ void loop() {
   //    digitalWrite(Blue, HIGH);
   //    count = 1;
   //  }
+  
   //  if (SER_IP == 'w')
   //  {
   //
@@ -258,6 +269,7 @@ void loop() {
   //    count = 1;
   //
   //  }
+  
   //  if (SER_IP == 'U')
   //  {
   //
@@ -265,6 +277,7 @@ void loop() {
   //    count = 1;
   //
   //  }
+  
   //  if (SER_IP == 'u')
   //  {
   //
@@ -272,6 +285,7 @@ void loop() {
   //    count = 1;
   //
   //  }
+  
   //  if (SER_IP == 'V')
   //  {
   //    digitalWrite(Buzzer, LOW);
