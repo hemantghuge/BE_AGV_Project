@@ -84,10 +84,12 @@ while(video_capture.isOpened()):
     crop_img = rescale_frame(frame, percent)
     
     decodedObjects = pyzbar.decode(crop_img)
+    print(decodedObjects)
     for obj in decodedObjects:
         print('QR FOUND')
         cv.putText(crop_img, str(obj.data), (50, 50), font, 2, (255, 0, 0), 3)  #inserting text on the frame
-        time.sleep(5)
+        print(str(obj.data))
+        #time.sleep(5)
     
     #BGR2GRAY conversion
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
