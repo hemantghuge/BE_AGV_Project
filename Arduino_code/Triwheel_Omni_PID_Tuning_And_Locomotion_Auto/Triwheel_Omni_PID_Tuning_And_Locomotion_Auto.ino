@@ -24,9 +24,9 @@ int D7 = 31;
 int Green = 23;
 int Red = 24;
 int Blue = 25;
-int normal = 4;
-int slight = 2;
-int extreme = 3;
+int normal = 9;
+int slight = 7;
+int extreme = 9;
 int VL = normal;
 int Buzzer = 49;
 int servo = 12;
@@ -37,8 +37,8 @@ byte angle_str = 0;
 int angle;
 byte sign_str = 0;
 int sign;
-byte qr;
-byte x_pos;
+String qr;
+int x_pos;
 
 // LCD pin declaration
 LiquidCrystal lcd(26, 27, 28, 29, 30, 31);
@@ -59,9 +59,13 @@ float error = 0;
 float PID = 0;
 float P, I, D;
 float preverror = 0;
-float kp = 15;
-float ki = 0.001;
-float kd = 161 ;
+//float kp = 10;
+//float ki = 0.0001;
+//float kd = 100 ;
+
+float kp = 2;
+float ki = 0.000;
+float kd = 5 ;
 float setpoint = 0;
 // Function declarations
 void Clockwise();
@@ -120,7 +124,7 @@ void setup()
   lcd.setCursor(0, 0);
   lcd.print("         AGV");
 }
-
+int i = 1;
 
 void loop() {
 
@@ -131,6 +135,7 @@ void loop() {
   reading = (avz) * 0.07;
   if (abs(avz) < 25)reading = 0;
   yaw = yaw + reading * timestep;
+  Serial.print("YAW  ");
   Serial.println(yaw);
   //  if (SER_IP == 'X')
   //  {
@@ -139,15 +144,15 @@ void loop() {
 
   if (Serial3.available()) {
     String angle_str = Serial3.readString();
-    int angle = angle_str.toInt();
+    angle = angle_str.toInt();
     delay(20);
     String sign_str = Serial3.readString();
-    int sign = sign_str.toInt();
+    sign = sign_str.toInt();
     delay(20);
-    String qr = Serial3.readString();
+    qr = Serial3.readString();
     delay(20);
     String x_pos_str = Serial3.readString();
-    int x_pos = x_pos_str.toInt();
+    x_pos = x_pos_str.toInt();
 
     if (sign == 0) {
       angle = -angle;
@@ -164,6 +169,18 @@ void loop() {
     Serial.println(qr);
     Serial.println(x_pos);
   }
+  Serial.println("ANGLE");
+  Serial.println(angle);
+  setpoint = - angle;
+  Serial.println("SetPoint");
+  Serial.println(setpoint);
+  //  if (i == 1)
+  //  {
+  //    delay(5000);
+  //    setpoint = (setpoint + 45);
+  //    i++;
+  //  }
+
 
   //  if (SER_IP == 'F')
   //  {
@@ -226,26 +243,26 @@ void loop() {
   //    theta = 45 * M_PI / 180;
   //    count = 1;
   //  }
-//  if (SER_IP == 'H')
-//  {
-//    //    theta = 225 * M_PI / 180;
-//    //    count = 1;
-//    digitalWrite(servo, HIGH);
-//    delayMicroseconds(2300);
-//    digitalWrite(servo, LOW);
-//    delay(20);
-//
-//  }
+  //  if (SER_IP == 'H')
+  //  {
+  //    //    theta = 225 * M_PI / 180;
+  //    //    count = 1;
+  //    digitalWrite(servo, HIGH);
+  //    delayMicroseconds(2300);
+  //    digitalWrite(servo, LOW);
+  //    delay(20);
+  //
+  //  }
 
-//  if (SER_IP == 'J')
-//  {
-//    //    theta = 315 * M_PI / 180;
-//    //    count = 1;
-//    digitalWrite(servo, HIGH);
-//    delayMicroseconds(1500);
-//    digitalWrite(servo, LOW);
-//    delay(20);
-//  }
+  //  if (SER_IP == 'J')
+  //  {
+  //    //    theta = 315 * M_PI / 180;
+  //    //    count = 1;
+  //    digitalWrite(servo, HIGH);
+  //    delayMicroseconds(1500);
+  //    digitalWrite(servo, LOW);
+  //    delay(20);
+  //  }
 
   //  if (SER_IP >= '1' && SER_IP <= '9')
   //  {
@@ -259,7 +276,7 @@ void loop() {
   //    digitalWrite(Blue, HIGH);
   //    count = 1;
   //  }
-  
+
   //  if (SER_IP == 'w')
   //  {
   //
@@ -269,7 +286,7 @@ void loop() {
   //    count = 1;
   //
   //  }
-  
+
   //  if (SER_IP == 'U')
   //  {
   //
@@ -277,7 +294,7 @@ void loop() {
   //    count = 1;
   //
   //  }
-  
+
   //  if (SER_IP == 'u')
   //  {
   //
@@ -285,7 +302,7 @@ void loop() {
   //    count = 1;
   //
   //  }
-  
+
   //  if (SER_IP == 'V')
   //  {
   //    digitalWrite(Buzzer, LOW);
@@ -302,7 +319,7 @@ void loop() {
   {
     V = 0;
   }
-  Serial.println(V);
+  //  Serial.println(V);
   error = yaw - setpoint;
   P = kp * error;
   I = I + (error * ki);

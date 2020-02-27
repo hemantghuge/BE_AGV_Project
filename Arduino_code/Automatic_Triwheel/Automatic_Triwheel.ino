@@ -24,10 +24,22 @@ int D7 = 31;
 int Green = 23;
 int Red = 24;
 int Blue = 25;
-int VL = 0;
+int normal = 9;
+int slight = 7;
+int extreme = 9;
+int VL;
 int Buzzer = 49;
 int servo = 12;
 int count = 1;
+
+//variables for serial 3
+byte angle_str = 0;
+int angle;
+byte sign_str = 0;
+int sign;
+String qr;
+int x_pos;
+
 // LCD pin declaration
 LiquidCrystal lcd(26, 27, 28, 29, 30, 31);
 // Object declarations
@@ -41,7 +53,7 @@ char SER_IP = 'S';
 float theta = 0 * M_PI / 180;
 float V1, V2, V3;
 float Vx, Vy;
-float V = 80;
+float V;
 float timeStep = 0.01;
 float error = 0;
 float PID = 0;
@@ -49,7 +61,11 @@ float P, I, D;
 float preverror = 0;
 float kp = 10;
 float ki = 0.0001;
-float kd = 10 ;
+float kd = 200 ;
+
+//float kp = 5;
+//float ki = 0.001;
+//float kd = 0;
 float setpoint = 0;
 // Function declarations
 void Clockwise();
@@ -89,8 +105,9 @@ void setup()
   digitalWrite(Buzzer, HIGH);
 
   Wire.begin();
+  Serial3.begin(9600); // Raspberry_pi_serial
+  Serial3.setTimeout(10);
   Serial.begin(115200);
-  Serial1.begin(9600);
   Serial.println("Initializing I2C devices...");
   gyro.initialize();
   Serial.println("Testing device connections...");
@@ -118,169 +135,150 @@ void loop() {
   reading = (avz) * 0.07;
   if (abs(avz) < 25)reading = 0;
   yaw = yaw + reading * timestep;
-  Serial.println(yaw);
-  if (SER_IP == 'X')
-  {
-    setpoint = (setpoint + 90);
-  }
 
-  if (Serial1.available() > 0)
-  {
-    SER_IP = Serial1.read();
-  }
-  if (SER_IP == 'F')
-  {
-    theta = 90 * M_PI / 180;
-    count = 1;
-  }
-  if (SER_IP == 'B')
-  {
-    theta = 270 * M_PI / 180;
-    count = 1;
-  }
-  if (SER_IP == 'L')
-  {
-    theta = 180 * M_PI / 180;
-    count = 1;
-  }
-  if (SER_IP == 'R')
-  {
-    theta = 0 * M_PI / 180;
-    count = 1;
-  }
-  if (SER_IP == 'G')
-  {
-    theta = 135 * M_PI / 180;
-    count = 1;
-  }
-  if (SER_IP == 'I')
-  {
-    theta = 45 * M_PI / 180;
-    count = 1;
-  }
-  if (SER_IP == 'H')
-  {
-    //    theta = 225 * M_PI / 180;
-    //    count = 1;
-    digitalWrite(servo, HIGH);
-    delayMicroseconds(2300);
-    digitalWrite(servo, LOW);
+  if (Serial3.available()) {
+    String angle_str = Serial3.readString();
+    angle = angle_str.toInt();
     delay(20);
-
-  }
-  if (SER_IP == 'J')
-  {
-    //    theta = 315 * M_PI / 180;
-    //    count = 1;
-    digitalWrite(servo, HIGH);
-    delayMicroseconds(1500);
-    digitalWrite(servo, LOW);
+    String sign_str = Serial3.readString();
+    sign = sign_str.toInt();
     delay(20);
-  }
+    qr = Serial3.readString();
+    delay(20);
+    String x_pos_str = Serial3.readString();
+    x_pos = x_pos_str.toInt();
 
-  if (SER_IP >= '1' && SER_IP <= '9')
-  {
-    VL = SER_IP ;
-    count = 1;
-  }
-  if (SER_IP == 'W')
-  {
-    digitalWrite(Green, HIGH);
-    digitalWrite(Red, HIGH);
-    digitalWrite(Blue, HIGH);
-    count = 1;
-  }
-  if (SER_IP == 'w')
-  {
-
-    digitalWrite(Green, LOW);
-    digitalWrite(Red, LOW);
-    digitalWrite(Blue, LOW);
-    count = 1;
+    if (sign == 0) {
+      angle = -angle;
+    }
+    else if (sign == 1) {
+      angle = angle;
+    }
+    else {
+      Serial.println("Sign Error");
+    }
 
   }
-  if (SER_IP == 'U')
+
+  Serial.println("character received: ");
+  Serial.println(angle);
+  Serial.println(qr);
+  Serial.println(x_pos);
+
+  V = 30; //Speed
+  V1 = 25;
+  normal = V;
+  
+  Forward();
+  if (angle < 0 && angle > -30) // Bot at extreme left
   {
-
-    digitalWrite(Red, HIGH);
-    count = 1;
-
+    V1 = 25;
+    V1_AntiClockwise();
   }
-  if (SER_IP == 'u')
+  else if (angle > 0 && angle < 30) // Bot at extreme left
   {
-
-    digitalWrite(Red, LOW);
-    count = 1;
-
+    V1 = 25;
+    V1_Clockwise();
   }
-  if (SER_IP == 'V')
+  else if (angle < -30) // Bot at extreme left
   {
-    digitalWrite(Buzzer, LOW);
-    count = 1;
+    V1 = 50;
+    V1_AntiClockwise();
   }
-  if (SER_IP == 'v')
+  else if (angle > 30) // Bot at extreme left
   {
-    digitalWrite(Buzzer, HIGH);
-    count = 1;
-  }
-
-  V = map(VL , 49, 58, 0, 255);
-  if (V == -1388)
-  {
-    V = 0;
-  }
-  Serial.println(V);
-  error = yaw - setpoint;
-  P = kp * error;
-  I = I + (error * ki);
-  D = kd * (error - preverror);
-  PID = P + I + D;
-  preverror = error;
-  lcd.setCursor(0, 0);
-  lcd.print(V1 + PID);
-  lcd.print("  ");
-  lcd.print(yaw);
-  lcd.setCursor(0, 1);
-  lcd.print(V2 + PID);
-  lcd.print("  ");
-  lcd.print(V3 + PID);
-
-  if (SER_IP == 'S')
-  {
-    V = 0;
-  }
-  Vx = V * cos(theta);
-  Vy = - V * sin(theta);
-
-  V1 = Vx + PID;
-  V2 = -(Vx * 0.5 + Vy * 0.866) + PID ;
-  V3 = -Vx * 0.5 + Vy * 0.866 + PID;
-
-  if (V1 >= 0)
-  {
+    V1 = 40;
     V1_Clockwise();
   }
   else
   {
-    V1_AntiClockwise();
+    Forward();
   }
-  if (V2 >= 0)
+
+  if (x_pos == 1) // Bot at extreme left
   {
+    V1 = normal;
+    V1_AntiClockwise();
     V2_Clockwise();
   }
-  else
+
+  else if (x_pos == 2) // Bot at slight left
   {
-    V2_AntiClockwise();
+    V1 = normal;
+    V1_AntiClockwise();
+    V2_Clockwise();
   }
-  if (V3 >= 0)
+
+  else if (x_pos == 3) // Bot at center
   {
-    V3_Clockwise();
+    Forward();
   }
-  else
+
+  else if (x_pos == 4) // Bot at slight right
   {
+    V1 = normal;
+    V1_Clockwise();
     V3_AntiClockwise();
   }
 
+  else if (x_pos == 5) // Bot at extreme right
+  {
+    V1 = normal;
+    V1_Clockwise();
+    V3_AntiClockwise();
+  }
+  //  error = yaw - setpoint;
+  //
+  //
+  //  Serial.println("Setpoint");
+  //  Serial.println(setpoint);
+  //
+  //  P = kp * error;
+  //  I = I + (error * ki);
+  //  D = kd * (error - preverror);
+  //  PID = P + I + D;
+  //  preverror = error;
+  //  Vx = V * cos(theta);
+  //  Vy = - V * sin(theta);
+  //
+  //  V1 = Vx + PID;
+  //  V2 = -(Vx * 0.5) + (Vy * 0.866) + PID;
+  //  V3 = -Vx * 0.5 + Vy * 0.866 + PID;
+  lcd.setCursor(0, 0);
+  lcd.print(x_pos);
+  lcd.print("  ");
+  lcd.print(angle);
+  lcd.print("  ");
+  lcd.setCursor(0, 1);
+  lcd.print(V);
+  lcd.print("  ");
+  lcd.print(V1);
+
+}
+//
+//void Clockwise()
+//{
+//  V1_Clockwise();
+//  V2_Clockwise();
+//  V3_Clockwise();
+//  Serial.println("Clockwise");
+//}
+//
+//
+//void AntiClockwise()
+//{
+//  V1_AntiClockwise();
+//  V2_AntiClockwise();
+//  V3_AntiClockwise();
+//  Serial.println("AntiClockwise");
+//}
+
+void Forward()
+{
+
+  V2_Clockwise();
+  V3_AntiClockwise();
+  Serial.println("Forward");
 }
 /*
     Function Name: V1_Clockwise()
@@ -306,7 +304,7 @@ void V1_Clockwise()
 void V2_Clockwise()
 {
 
-  analogWrite(PWM_L, abs(V2));
+  analogWrite(PWM_L, abs(V));
   digitalWrite(DR_L1, HIGH);
   digitalWrite(DR_L2, LOW);
 
@@ -322,7 +320,7 @@ void V2_Clockwise()
 void V3_Clockwise()
 {
 
-  analogWrite(PWM_R, abs(V3));
+  analogWrite(PWM_R, abs(V));
   digitalWrite(DR_R1, HIGH);
   digitalWrite(DR_R2, LOW);
 
@@ -351,7 +349,7 @@ void V1_AntiClockwise()
 void V2_AntiClockwise()
 {
 
-  analogWrite(PWM_L, abs(V2));
+  analogWrite(PWM_L, abs(V));
   digitalWrite(DR_L1, LOW);
   digitalWrite(DR_L2, HIGH);
 }
@@ -364,7 +362,7 @@ void V2_AntiClockwise()
 */
 void V3_AntiClockwise()
 {
-  analogWrite(PWM_R, abs(V3));
+  analogWrite(PWM_R, abs(V));
   digitalWrite(DR_R1, LOW);
   digitalWrite(DR_R2, HIGH);
 }
