@@ -15,7 +15,7 @@ void setup() {
 void loop() {
   if (Serial3.available()) {
 
-     Serial.println("character received: ");
+    Serial.println("character received: ");
     String angle_str = Serial3.readString();
     int angle = angle_str.toInt();
     Serial.println(angle);
@@ -25,12 +25,12 @@ void loop() {
     Serial.println(sign);
     delay(20);
     String qr = Serial3.readString();
-     Serial.println(qr);
+    Serial.println(qr);
     delay(20);
     String x_pos_str = Serial3.readString();
     int x_pos = x_pos_str.toInt();
     Serial.println(x_pos);
-    
+
     if (sign == 0) {
       angle = -angle;
     }
@@ -41,9 +41,9 @@ void loop() {
       Serial.println("Sign Error");
     }
 
-   
-    
-   
-    
+
+
+
+
   }
 }
