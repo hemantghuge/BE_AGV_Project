@@ -59,8 +59,8 @@ void loop()
         {
           x = mat[node][0];
           y = mat[node][1];
-                    Serial.println(x);
-                    Serial.println(y);
+          //          Serial.println(x);
+          //          Serial.println(y);
 
           /**** calculatation of  h_cost ****/
 
