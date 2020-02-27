@@ -4,8 +4,13 @@
 
 import numpy as np 
 import cv2 as cv
+import serial
 import pyzbar.pyzbar as pyzbar
-import time
+import time, sys
+
+SERIAL_PORT = "/dev/ttyS0"
+ser = serial.Serial(SERIAL_PORT, baudrate = 9600)
+ser.close()
 
 width = 640
 height = 480
@@ -24,7 +29,11 @@ video_capture.set(cv.CAP_PROP_FOURCC,cv.VideoWriter_fourcc(*'MJPG'))
 
 font = cv.FONT_HERSHEY_PLAIN #font to be displayed on screen
 
-area_threshold = 15000
+area_threshold = 10000
+
+ang = 0
+ang_value = 0
+flag_line = 3
 
 
 def rescale_frame(frame, percent):
@@ -33,46 +42,135 @@ def rescale_frame(frame, percent):
     dim = (width, height)
     return cv.resize(frame, dim, interpolation = cv.INTER_AREA)
 
-def show_graphics():
-    cv.imshow('crop_img',crop_img)
-    cv.imshow('thresh', thresh)
-    return 0
-
-def calculate_angle(points):
+def calculate_angle(thresh):
+    
+    # Apply edge detection method on the image 
+    edges = cv.Canny(thresh.copy(),50,150,apertureSize = 3) 
+      
+    # This returns an array of r and theta values 
+    lines = cv.HoughLines(edges,1,np.pi/180, 100) 
+    
+    if lines is not None:
+        # The below for loop runs till r and theta values  
+        # are in the range of the 2d array 
+        for r,theta in lines[0]: 
             
-    blackbox = cv.minAreaRect(points)
-    #print('blackbox= '+ str(blackbox))
-    (x_min, y_min), (w_min, h_min), ang = blackbox
-
-    if ang < -45 :
-        ang = 90 + ang
+            # Stores the value of cos(theta) in a 
+            a = np.cos(theta) 
           
-    if w_min < h_min and ang > 0:    
-        ang = (90-ang)*-1
-                      
-    if w_min > h_min and ang < 0:
-        ang = 90 + ang
+            # Stores the value of sin(theta) in b 
+            b = np.sin(theta) 
+              
+            # x0 stores the value rcos(theta) 
+            x0 = a*r 
+              
+            # y0 stores the value rsin(theta) 
+            y0 = b*r 
+              
+            # x1 stores the rounded off value of (rcos(theta)-1000sin(theta)) 
+            x1 = int(x0 + 1000*(-b)) 
+              
+            # y1 stores the rounded off value of (rsin(theta)+1000cos(theta)) 
+            y1 = int(y0 + 1000*(a)) 
+          
+            # x2 stores the rounded off value of (rcos(theta)+1000sin(theta)) 
+            x2 = int(x0 - 1000*(-b)) 
+              
+            # y2 stores the rounded off value of (rsin(theta)-1000cos(theta)) 
+            y2 = int(y0 - 1000*(a)) 
+              
+            # cv2.line draws a line in img from the point(x1,y1) to (x2,y2). 
+            # (0,0,255) denotes the colour of the line to be  
+            #drawn. In this case, it is red.  
+            cv.line(crop_img,(x1,y1), (x2,y2), (0,0,255), 4) 
+            # radian into degree 
+            theta_degree = (theta/22)*180*7
+            if theta_degree <= 90 and theta_degree >= 0:
+                angle = theta_degree
+            elif theta_degree > 90 and theta_degree <=180:
+                angle = theta_degree - 180
+            else:
+                angle = 999
             
-    ang = int(ang)
-    print('ang = '+ str(ang))
-    cv.putText(crop_img, 'Angle ='+ str(ang),(400,50), cv.FONT_HERSHEY_SIMPLEX, 1, (20, 20, 250), 3)
-        
-    return(ang)
+            #print('angle = '+ str(angle))
+    
+            angle_int = int(angle)
+            #print('angle_int = '+str(angle_int))
+            angle_str = str(angle_int)
+            
+            #print('angle_str = '+ str(angle_str))
+            cv.putText(crop_img, 'Angle ='+ str(angle_int),(400, 50), cv.FONT_HERSHEY_SIMPLEX, 1, (20, 220, 250), 4)    
+    
+        return(angle_int)
 
 def line_follow(cx):
-    if cx <= width/3:
+    if cx <= width/5:
+        flag = 1
         print ('left')
-    elif cx > width/3 and cx < width*(2/3):
+    
+    elif cx > width/5 and cx < width*(2/5):
+        flag = 2
+        print ('slight left')
+    
+    elif cx > width*(2/5) and cx < width*(3/5):
+        flag = 3
         print ('On Track')
-    elif cx >= width*(2/3):
-        print ('Right')
+        
+    elif cx > width*(3/5) and cx < width*(4/5):
+        flag = 4
+        print ('slight right')
+    
+    elif cx >= width*(4/5) and cx < width:
+        flag = 5
+        print ('right')
     else:
-        print('x-axis point not in frame')
-    #return flag    
+        flag = 3
+        
+    return flag    
+#     else:
+#         flag = flag
+#         print('x-axis point not in frame')
+
     
         
-def transfer_Angle(ang):
-    print('In Transfer Angle Function')
+def data_transmission(angle, qr, x_pos):
+    print('DATA TRANSMISSION')
+        
+    if angle < 0:
+        sign = 0
+        angle = -angle
+    else:
+        sign = 1
+        angle = angle
+
+    angle_str = str(int(angle))
+    sign_str = str(int(sign))
+    x_pos_str = str(int(x_pos))
+    
+    ser.open()
+    ser.write(angle_str.encode())
+    print(angle_str)
+    ser.close()
+
+    ser.open()
+    ser.write(sign_str.encode())
+    print(sign_str)
+    ser.close()
+
+    ser.open()
+    ser.write(qr.encode())
+    print(qr)
+    ser.close()
+
+    ser.open()
+    ser.write(x_pos_str.encode())
+    print(x_pos)
+    ser.close()
+    
+    print('DATA TRANSMISSION')
+    
+    cv.imshow('thresh', thresh)
+    cv.imshow('crop_img',crop_img)
 
 
 while(video_capture.isOpened()):
@@ -84,12 +182,19 @@ while(video_capture.isOpened()):
     crop_img = rescale_frame(frame, percent)
     
     decodedObjects = pyzbar.decode(crop_img)
-    print(decodedObjects)
-    for obj in decodedObjects:
-        print('QR FOUND')
-        cv.putText(crop_img, str(obj.data), (50, 50), font, 2, (255, 0, 0), 3)  #inserting text on the frame
-        print(str(obj.data))
-        #time.sleep(5)
+    #print(type(decodedObjects))
+    
+    if decodedObjects:
+        for obj in decodedObjects:
+            #print('QR FOUND')
+            qr = str(obj.data)
+            cv.putText(crop_img, qr, (50, 50), font, 2, (255, 0, 0), 3)  #inserting text on the frame            
+            #time.sleep(5)
+    else:
+        qr = 'No'
+        #print('QR NOT FOUND')
+        
+    print('QR value = ' + str(qr))
     
     #BGR2GRAY conversion
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
@@ -107,8 +212,6 @@ while(video_capture.isOpened()):
 
         if (area > area_threshold):
             
-            ang = calculate_angle(con)
-            
             M = cv.moments(con)
 
             if M['m00'] == 0:
@@ -119,24 +222,35 @@ while(video_capture.isOpened()):
             #cy -> center point of y-axis
             cy = int(M['m01']/M['m00'])
 
-            cv.line(crop_img,(cx,0),(cx,height), (255,0,0),3)
-            cv.line(crop_img,(0,cy),(width,cy), (255,0,0),3)
-
-            cv.drawContours(crop_img, con, -1, (0,255,0), 3) #con=max(contours)
+            cv.drawContours(crop_img, con, -1, (0,255,0), 2) #con=max(contours)
+            
+            cv.line(crop_img,(cx,0),(cx,height), (255,0,0),2)
+            cv.line(crop_img,(0,cy),(width,cy), (255,0,0),2)
             
             flag_line = line_follow(cx)
+            print('x_pos = '+ str(flag_line))
             
-            #transfer Angle value to through GPIO
-            transfer_Angle(ang)
+            
+            ang = calculate_angle(thresh.copy())
+            if ang == None:
+                ang = 0
+                
+            print('ang = ' + str(ang))
+            
+            
+            
             
         else:
             print('Area less than threshold value i.e.' + str(area_threshold))
             
     else:
         print ('I don\'t see the contour')        
-
-    show_graphics() #Calling show_graphics() function
     
+    ang_value = ang
+    
+    data_transmission(ang_value, qr, flag_line)
+    
+    #show_graphics() #Calling show_graphics() function    
     #out.write(crop_img) #saving frame named crop_img
     #out1.write(thresh) #saving frame named thresh
 
