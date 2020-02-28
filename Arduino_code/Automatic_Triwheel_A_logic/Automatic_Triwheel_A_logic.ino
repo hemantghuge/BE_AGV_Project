@@ -61,11 +61,7 @@ float P, I, D;
 float preverror = 0;
 float kp = 10;
 float ki = 0.0001;
-float kd = 200 ;
-
-//float kp = 5;
-//float ki = 0.001;
-//float kd = 0;
+float kd = 20 ;
 float setpoint = 0;
 // Function declarations
 void Clockwise();
@@ -157,7 +153,6 @@ void loop() {
     else {
       Serial.println("Sign Error");
     }
-
   }
 
   Serial.println("character received: ");
@@ -165,102 +160,111 @@ void loop() {
   Serial.println(qr);
   Serial.println(x_pos);
 
-  if (qr == "b'AGV'")
-  {
-    Serial.println("QR DETECTED");
-    V=0;
-    V1=0;
-    delay(5000);
-  }
 
-  V = 30; //Speed
-  V1 = 25;
-  normal = V;
-
-  Forward();
-  if (angle < 0 && angle > -30) // Bot at extreme left
+  theta = 90 * M_PI / 180;
+  V = 50;
+  if (angle < 20 && angle > -20)
   {
-    V1 = 25;
-    V1_AntiClockwise();
+    setpoint = 0;
   }
-  else if (angle > 0 && angle < 30) // Bot at extreme left
+  else if (angle > 20  && angle < 40 || angle < -20  && angle > -40)
   {
-    V1 = 25;
-    V1_Clockwise();
+    setpoint = - 90;
   }
-  else if (angle < -30) // Bot at extreme left
+  else if (angle > 40  && angle < 80 || angle < -40  && angle > -80)
   {
-    V1 = 50;
-    V1_AntiClockwise();
+    setpoint = -60;
   }
-  else if (angle > 30) // Bot at extreme left
-  {
-    V1 = 40;
-    V1_Clockwise();
-  }
-  else
-  {
-    Forward();
-  }
-
-  if (x_pos == 1) // Bot at extreme left
-  {
-    V1 = normal;
-    V1_AntiClockwise();
-    V2_Clockwise();
-  }
-
-  else if (x_pos == 2) // Bot at slight left
-  {
-    V1 = normal;
-    V1_AntiClockwise();
-    V2_Clockwise();
-  }
-
-  else if (x_pos == 3) // Bot at center
-  {
-    Forward();
-  }
-
-  else if (x_pos == 4) // Bot at slight right
-  {
-    V1 = normal;
-    V1_Clockwise();
-    V3_AntiClockwise();
-  }
-
-  else if (x_pos == 5) // Bot at extreme right
-  {
-    V1 = normal;
-    V1_Clockwise();
-    V3_AntiClockwise();
-  }
-  //  error = yaw - setpoint;
   //
+  //  if (x_pos == 1) // Bot at extreme left
+  //  {
+  //    V1 = normal;
+  //    V1_AntiClockwise();
+  //    V2_Clockwise();
+  //  }
   //
-  //  Serial.println("Setpoint");
-  //  Serial.println(setpoint);
+  //  else if (x_pos == 2) // Bot at slight left
+  //  {
+  //    V1 = normal;
+  //    V1_AntiClockwise();
+  //    V2_Clockwise();
+  //  }
   //
-  //  P = kp * error;
-  //  I = I + (error * ki);
-  //  D = kd * (error - preverror);
-  //  PID = P + I + D;
-  //  preverror = error;
-  //  Vx = V * cos(theta);
-  //  Vy = - V * sin(theta);
+  //  else if (x_pos == 3) // Bot at center
+  //  {
+  //    Forward();
+  //  }
   //
-  //  V1 = Vx + PID;
-  //  V2 = -(Vx * 0.5) + (Vy * 0.866) + PID;
-  //  V3 = -Vx * 0.5 + Vy * 0.866 + PID;
+  //  else if (x_pos == 4) // Bot at slight right
+  //  {
+  //    V1 = normal;
+  //    V1_Clockwise();
+  //    V3_AntiClockwise();
+  //  }
+  //
+  //  else if (x_pos == 5) // Bot at extreme right
+  //  {
+  //    V1 = normal;
+  //    V1_Clockwise();
+  //    V3_AntiClockwise();
+  //  }
+
+  error = yaw - setpoint;
+
+
+  Serial.println("Setpoint");
+  Serial.println(setpoint);
+
+  P = kp * error;
+  I = I + (error * ki);
+  D = kd * (error - preverror);
+  PID = P + I + D;
+  preverror = error;
+  
   lcd.setCursor(0, 0);
   lcd.print(x_pos);
-  lcd.print("  ");
+  lcd.print("   ANGLE   ");
   lcd.print(angle);
-  lcd.print("  ");
+  lcd.print("       ");
   lcd.setCursor(0, 1);
   lcd.print(V);
   lcd.print("  ");
   lcd.print(V1);
+
+
+  Vx = V * cos(theta);
+  Vy = - V * sin(theta);
+
+  V1 = Vx + PID;
+  V2 = -(Vx * 0.5) + (Vy * 0.866) + PID;
+  V3 = -Vx * 0.5 + Vy * 0.866 + PID;
+
+
+  if (V1 >= 0)
+  {
+    V1_Clockwise();
+  }
+  else
+  {
+    V1_AntiClockwise();
+  }
+  if (V2 >= 0)
+  {
+    V2_Clockwise();
+  }
+  else
+  {
+    V2_AntiClockwise();
+  }
+  if (V3 >= 0)
+  {
+    V3_Clockwise();
+  }
+  else
+  {
+    V3_AntiClockwise();
+  }
+
 
 }
 //
@@ -281,13 +285,13 @@ void loop() {
 //  Serial.println("AntiClockwise");
 //}
 
-void Forward()
-{
-
-  V2_Clockwise();
-  V3_AntiClockwise();
-  Serial.println("Forward");
-}
+//void Forward()
+//{
+//
+//  V2_Clockwise();
+//  V3_AntiClockwise();
+//  Serial.println("Forward");
+//}
 /*
     Function Name: V1_Clockwise()
     Input: None
@@ -312,7 +316,7 @@ void V1_Clockwise()
 void V2_Clockwise()
 {
 
-  analogWrite(PWM_L, abs(V));
+  analogWrite(PWM_L, abs(V2));
   digitalWrite(DR_L1, HIGH);
   digitalWrite(DR_L2, LOW);
 
@@ -328,7 +332,7 @@ void V2_Clockwise()
 void V3_Clockwise()
 {
 
-  analogWrite(PWM_R, abs(V));
+  analogWrite(PWM_R, abs(V3));
   digitalWrite(DR_R1, HIGH);
   digitalWrite(DR_R2, LOW);
 
@@ -357,7 +361,7 @@ void V1_AntiClockwise()
 void V2_AntiClockwise()
 {
 
-  analogWrite(PWM_L, abs(V));
+  analogWrite(PWM_L, abs(V2));
   digitalWrite(DR_L1, LOW);
   digitalWrite(DR_L2, HIGH);
 }
@@ -370,7 +374,7 @@ void V2_AntiClockwise()
 */
 void V3_AntiClockwise()
 {
-  analogWrite(PWM_R, abs(V));
+  analogWrite(PWM_R, abs(V3));
   digitalWrite(DR_R1, LOW);
   digitalWrite(DR_R2, HIGH);
 }
