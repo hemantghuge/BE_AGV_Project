@@ -40,6 +40,10 @@ int sign;
 String qr;
 int x_pos;
 
+
+int flag = 0;
+int angle_list[5] = {0, 0, 0, 0, 0};
+
 // LCD pin declaration
 LiquidCrystal lcd(26, 27, 28, 29, 30, 31);
 // Object declarations
@@ -157,7 +161,6 @@ void loop() {
     else {
       Serial.println("Sign Error");
     }
-
   }
 
   Serial.println("character received: ");
@@ -165,11 +168,28 @@ void loop() {
   Serial.println(qr);
   Serial.println(x_pos);
 
+  // Read value con
+//  if (flag >= 0 && flag < 5)
+//  {
+//    angle_list[flag] = angle;
+//    flag++;
+//    Serial.println("IN ANGLE READING");
+//
+//  }
+//  else if (flag == 5)
+//  {
+//    int n = sizeof(angle_list) / sizeof(angle_list[0]);
+//
+//    flag = 0;
+//    Mode(angle_list , n);
+//    delay(10000);
+//  }
+
   if (qr == "b'AGV'")
   {
     Serial.println("QR DETECTED");
-    V=0;
-    V1=0;
+    V = 0;
+    V1 = 0;
     delay(5000);
   }
 
@@ -263,6 +283,53 @@ void loop() {
   lcd.print(V1);
 
 }
+
+
+void Mode(int angle_list[], int n)
+{
+
+  int large = Max(angle_list , n);
+  Serial.println(large);
+
+  int len = large + 1;
+  int count[len];
+  for (int i = 0; i < len; i++)
+    count[i] = 0;
+
+  for (int i = 0; i < n; i++)
+    count[angle_list[i]]++;
+
+  int mode = 0;
+  int k = count[0];
+  for (int i = 1; i < len; i++)
+  {
+    if (count[i] > k)
+    {
+      k = count[i];
+      mode = i;
+    }
+  }
+
+  Serial.println("MODE");
+  Serial.println(mode);
+
+}
+
+
+int Max(int arr[], int n)
+{
+  Serial.println("In Max Function");
+  int i;
+
+  int big = arr[0];
+
+  for (i = 1; i < n; i++)
+    if (arr[i] > big)
+      big = arr[i];
+
+  return big;
+}
+
 //
 //void Clockwise()
 //{

@@ -4,12 +4,11 @@
 int angle_list[5] = {1, 1, 1, 1, 10};
 int n = sizeof(angle_list) / sizeof(angle_list[0]);
 
-int large;
 
 void setup() {
 
   // put your setup code here, to run once:
-  Serial.begin(9600);
+  Serial.begin(115200);
   Mode(angle_list , n);
 }
 
@@ -23,7 +22,7 @@ void loop() {
 void Mode(int [], int )
 {
 
-  large = Max(angle_list , n);
+  int large = Max(angle_list , n);
   Serial.println(large);
 
   int len = large + 1;
