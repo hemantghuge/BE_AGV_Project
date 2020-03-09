@@ -27,18 +27,17 @@ int Blue = 25;
 int normal = 9;
 int slight = 7;
 int extreme = 9;
-int VL = normal;
+int VL = 0;
 int Buzzer = 49;
 int servo = 12;
 int count = 1;
 
 //variables for serial 3
-byte angle_str = 0;
-int angle;
-byte sign_str = 0;
-int sign;
+int angle = 0;
 String qr;
-int x_pos;
+int x_pos = 0;
+
+
 
 // LCD pin declaration
 LiquidCrystal lcd(26, 27, 28, 29, 30, 31);
@@ -59,13 +58,11 @@ float error = 0;
 float PID = 0;
 float P, I, D;
 float preverror = 0;
-//float kp = 10;
-//float ki = 0.0001;
-//float kd = 100 ;
 
-float kp = 2;
-float ki = 0.000;
-float kd = 5 ;
+float kp = 3;
+float ki = 0.0001;
+float kd = 8;
+
 float setpoint = 0;
 // Function declarations
 void Clockwise();
@@ -105,9 +102,9 @@ void setup()
   digitalWrite(Buzzer, HIGH);
 
   Wire.begin();
-  Serial3.begin(9600); // Raspberry_pi_serial
-  Serial3.setTimeout(10);
-  Serial.begin(115200);
+  Serial3.begin(115200); // Raspberry_pi_serial
+  Serial3.setTimeout(3);
+  Serial.begin(9600);
   Serial.println("Initializing I2C devices...");
   gyro.initialize();
   Serial.println("Testing device connections...");
@@ -124,7 +121,6 @@ void setup()
   lcd.setCursor(0, 0);
   lcd.print("         AGV");
 }
-int i = 1;
 
 void loop() {
 
@@ -137,49 +133,48 @@ void loop() {
   yaw = yaw + reading * timestep;
   Serial.print("YAW  ");
   Serial.println(yaw);
+
+  
+  Serial.println("TIME");
+  Serial.println(timestep);
+  
   //  if (SER_IP == 'X')
   //  {
   //    setpoint = (setpoint + 90);
   //  }
 
   if (Serial3.available()) {
-    String angle_str = Serial3.readString();
+
+
+    String readString = Serial3.readString();
+
+    // Split the readString by a pre-defined delimiter in a simple way. '%'(percentage) is defined as the delimiter in this project.
+    int delimiter, delimiter_1, delimiter_2, delimiter_3;
+    delimiter = readString.indexOf("%");
+    delimiter_1 = readString.indexOf("%", delimiter + 1);
+    delimiter_2 = readString.indexOf("%", delimiter_1 + 1);
+    delimiter_3 = readString.indexOf("%", delimiter_2 + 1);
+
+    // Define variables to be executed on the code later by collecting information from the readString as substrings.
+    String angle_str = readString.substring(delimiter + 1, delimiter_1);
+    String qr_str = readString.substring(delimiter_1 + 1, delimiter_2);
+    String x_pos_str = readString.substring(delimiter_2 + 1, delimiter_3);
+
     angle = angle_str.toInt();
-    delay(20);
-    String sign_str = Serial3.readString();
-    sign = sign_str.toInt();
-    delay(20);
-    qr = Serial3.readString();
-    delay(20);
-    String x_pos_str = Serial3.readString();
+    qr = qr_str;
     x_pos = x_pos_str.toInt();
-
-    if (sign == 0) {
-      angle = -angle;
-    }
-    else if (sign == 1) {
-      angle = angle;
-    }
-    else {
-      Serial.println("Sign Error");
-    }
-
-    Serial.println("character received: ");
-    Serial.println(angle);
-    Serial.println(qr);
-    Serial.println(x_pos);
   }
-  Serial.println("ANGLE");
+
+  Serial.println("DATA RECEIVED");
   Serial.println(angle);
+  Serial.println(qr);
+  Serial.println(x_pos);
+  Serial.println("DATA RECEIVED");
+
+
   setpoint = - angle;
   Serial.println("SetPoint");
   Serial.println(setpoint);
-  //  if (i == 1)
-  //  {
-  //    delay(5000);
-  //    setpoint = (setpoint + 45);
-  //    i++;
-  //  }
 
 
   //  if (SER_IP == 'F')
@@ -192,36 +187,36 @@ void loop() {
   //    theta = 270 * M_PI / 180;
   //    count = 1;
   //  }
-
-  if (x_pos == 1) // Bot at extreme left
-  {
-    VL = extreme;
-    theta = 0 * M_PI / 180; //shift bot right
-  }
-
-  else if (x_pos == 2) // Bot at slight left
-  {
-    VL = slight;
-    theta = 0 * M_PI / 180; //shift bot right
-  }
-
-  else if (x_pos == 3) // Bot at center
-  {
-    VL = normal;
-    theta = 90 * M_PI / 180;
-  }
-
-  else if (x_pos == 4) // Bot at slight right
-  {
-    VL = slight;
-    theta = 180 * M_PI / 180;
-  }
-
-  else if (x_pos == 5) // Bot at extreme right
-  {
-    VL = extreme;
-    theta = 180 * M_PI / 180;
-  }
+  
+//  if (x_pos == 1) // Bot at extreme left
+//  {
+//    VL = extreme;
+//    theta = 0 * M_PI / 180; //shift bot right
+//  }
+//
+//  else if (x_pos == 2) // Bot at slight left
+//  {
+//    VL = slight;
+//    theta = 0 * M_PI / 180; //shift bot right
+//  }
+//
+//  else if (x_pos == 3) // Bot at center
+//  {
+//    VL = normal;
+//    theta = 90 * M_PI / 180;
+//  }
+//
+//  else if (x_pos == 4) // Bot at slight right
+//  {
+//    VL = slight;
+//    theta = 180 * M_PI / 180;
+//  }
+//
+//  else if (x_pos == 5) // Bot at extreme right
+//  {
+//    VL = extreme;
+//    theta = 180 * M_PI / 180;
+//  }
 
   //  if (SER_IP == 'L')
   //  {
@@ -314,7 +309,7 @@ void loop() {
   //    count = 1;
   //  }
 
-  V = map(VL , 49, 58, 0, 255);
+  V = map(VL , 1, 9, 0, 255);
   if (V == -1388)
   {
     V = 0;

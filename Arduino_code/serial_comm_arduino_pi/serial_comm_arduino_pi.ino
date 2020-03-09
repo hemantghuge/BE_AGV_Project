@@ -1,3 +1,7 @@
+int angle = 0;
+String qr;
+int x_pos = 0;
+
 void setup() {
 
   Serial.begin(9600);
@@ -9,7 +13,7 @@ void setup() {
 void loop()
 {
   if (Serial3.available()) {
-    Serial.println("Data received");
+    
     String readString = Serial3.readString();
 
     // Split the readString by a pre-defined delimiter in a simple way. '%'(percentage) is defined as the delimiter in this project.
@@ -24,11 +28,15 @@ void loop()
     String qr_str = readString.substring(delimiter_1 + 1, delimiter_2);
     String x_pos_str = readString.substring(delimiter_2 + 1, delimiter_3);
 
-    int angle = angle_str.toInt();
-    String qr = qr_str;
-    int x_pos = x_pos_str.toInt();
-    Serial.println(angle);
-    Serial.println(qr);
-    Serial.println(x_pos);
+    angle = angle_str.toInt();
+    qr = qr_str;
+    x_pos = x_pos_str.toInt();
   }
+  Serial.println("DATA RECEIVED");
+  Serial.println(angle);
+  Serial.println(qr);
+  Serial.println(x_pos);
+  Serial.println("DATA RECEIVED");
+
+
 }

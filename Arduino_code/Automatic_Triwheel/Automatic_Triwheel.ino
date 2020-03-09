@@ -32,13 +32,13 @@ int Buzzer = 49;
 int servo = 12;
 int count = 1;
 
+
+
 //variables for serial 3
-byte angle_str = 0;
-int angle;
-byte sign_str = 0;
-int sign;
+int angle = 0;
 String qr;
-int x_pos;
+int x_pos = 0;
+
 
 
 int flag = 0;
@@ -109,9 +109,9 @@ void setup()
   digitalWrite(Buzzer, HIGH);
 
   Wire.begin();
-  Serial3.begin(9600); // Raspberry_pi_serial
-  Serial3.setTimeout(10);
-  Serial.begin(115200);
+  Serial3.begin(115200); // Raspberry_pi_serial
+  Serial3.setTimeout(3);
+  Serial.begin(9600);
   Serial.println("Initializing I2C devices...");
   gyro.initialize();
   Serial.println("Testing device connections...");
@@ -141,49 +141,50 @@ void loop() {
   yaw = yaw + reading * timestep;
 
   if (Serial3.available()) {
-    String angle_str = Serial3.readString();
-    angle = angle_str.toInt();
-    delay(20);
-    String sign_str = Serial3.readString();
-    sign = sign_str.toInt();
-    delay(20);
-    qr = Serial3.readString();
-    delay(20);
-    String x_pos_str = Serial3.readString();
-    x_pos = x_pos_str.toInt();
 
-    if (sign == 0) {
-      angle = -angle;
-    }
-    else if (sign == 1) {
-      angle = angle;
-    }
-    else {
-      Serial.println("Sign Error");
-    }
+
+    String readString = Serial3.readString();
+
+    // Split the readString by a pre-defined delimiter in a simple way. '%'(percentage) is defined as the delimiter in this project.
+    int delimiter, delimiter_1, delimiter_2, delimiter_3;
+    delimiter = readString.indexOf("%");
+    delimiter_1 = readString.indexOf("%", delimiter + 1);
+    delimiter_2 = readString.indexOf("%", delimiter_1 + 1);
+    delimiter_3 = readString.indexOf("%", delimiter_2 + 1);
+
+    // Define variables to be executed on the code later by collecting information from the readString as substrings.
+    String angle_str = readString.substring(delimiter + 1, delimiter_1);
+    String qr_str = readString.substring(delimiter_1 + 1, delimiter_2);
+    String x_pos_str = readString.substring(delimiter_2 + 1, delimiter_3);
+
+    angle = angle_str.toInt();
+    qr = qr_str;
+    x_pos = x_pos_str.toInt();
   }
 
-  Serial.println("character received: ");
+  Serial.println("DATA RECEIVED");
   Serial.println(angle);
   Serial.println(qr);
   Serial.println(x_pos);
+  Serial.println("DATA RECEIVED");
+
 
   // Read value con
-//  if (flag >= 0 && flag < 5)
-//  {
-//    angle_list[flag] = angle;
-//    flag++;
-//    Serial.println("IN ANGLE READING");
-//
-//  }
-//  else if (flag == 5)
-//  {
-//    int n = sizeof(angle_list) / sizeof(angle_list[0]);
-//
-//    flag = 0;
-//    Mode(angle_list , n);
-//    delay(10000);
-//  }
+  //  if (flag >= 0 && flag < 5)
+  //  {
+  //    angle_list[flag] = angle;
+  //    flag++;
+  //    Serial.println("IN ANGLE READING");
+  //
+  //  }
+  //  else if (flag == 5)
+  //  {
+  //    int n = sizeof(angle_list) / sizeof(angle_list[0]);
+  //
+  //    flag = 0;
+  //    Mode(angle_list , n);
+  //    delay(10000);
+  //  }
 
   if (qr == "b'AGV'")
   {

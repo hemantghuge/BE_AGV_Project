@@ -48,8 +48,8 @@ float PID = 0;
 float P, I, D;
 float preverror = 0;
 float kp = 10;
-float ki = 0.0001;
-float kd = 10 ;
+float ki = 0.00005;
+float kd = 50 ;
 float setpoint = 0;
 // Function declarations
 void Clockwise();
@@ -89,7 +89,7 @@ void setup()
   digitalWrite(Buzzer, HIGH);
 
   Wire.begin();
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial1.begin(9600);
   Serial.println("Initializing I2C devices...");
   gyro.initialize();
@@ -123,6 +123,9 @@ void loop() {
   {
     setpoint = (setpoint + 90);
   }
+
+  Serial.println("TIME");
+  Serial.println(timestep);
 
   if (Serial1.available() > 0)
   {
