@@ -34,6 +34,7 @@ def rescale_frame(frame, percent):
     return cv.resize(frame, dim, interpolation = cv.INTER_AREA)
 
 def show_graphics():
+    cv.putText(crop_img, 'Angle ='+ str(angle_int),(400,50), cv.FONT_HERSHEY_SIMPLEX, 1, (20, 220, 250), 3)
     cv.imshow('crop_img',crop_img)
     cv.imshow('edges', edges)
     return 0
@@ -96,7 +97,7 @@ while(video_capture.isOpened()):
             # cv2.line draws a line in img from the point(x1,y1) to (x2,y2). 
             # (0,0,255) denotes the colour of the line to be  
             #drawn. In this case, it is red.  
-            cv.line(crop_img,(x1,y1), (x2,y2), (0,0,255),2) 
+            cv.line(crop_img,(x1,y1), (x2,y2), (0,0,255), 4) 
             # radian into degree 
             theta_degree = (theta/22)*180*7
             if theta_degree <= 90 and theta_degree >= 0:
@@ -107,14 +108,16 @@ while(video_capture.isOpened()):
                 angle = 999
             
             #print('angle = '+ str(angle))
-              
-    show_graphics() #Calling show_graphics() function
     
     angle_int = int(angle)
     #print('angle_int = '+str(angle_int))
     angle_str = str(angle_int)
     print('angle_str = '+ str(angle_str))
     data_transmission(angle_str)
+    
+             
+    show_graphics() #Calling show_graphics() function
+    
     
     end = time.time()
     print("time execution " + str(end-start))
