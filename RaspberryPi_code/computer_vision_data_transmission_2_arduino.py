@@ -9,7 +9,7 @@ import pyzbar.pyzbar as pyzbar
 import time, sys
 
 SERIAL_PORT = "/dev/ttyS0"
-ser = serial.Serial(SERIAL_PORT, baudrate = 9600)
+ser = serial.Serial(SERIAL_PORT, baudrate = 115200)
 ser.close()
 
 width = 640
@@ -136,36 +136,43 @@ def line_follow(cx):
 def data_transmission(angle, qr, x_pos):
     print('DATA TRANSMISSION')
         
-    if angle < 0:
-        sign = 0
-        angle = -angle
-    else:
-        sign = 1
-        angle = angle
-
-    angle_str = str(int(angle))
-    sign_str = str(int(sign))
-    x_pos_str = str(int(x_pos))
+    data = '%'+str(angle)+'%'+str(qr)+'%'+str(x_pos)+'%'+'end'
     
     ser.open()
-    ser.write(angle_str.encode())
-    print(angle_str)
+    ser.write(data.encode())
+    print(data)
     ser.close()
-
-    ser.open()
-    ser.write(sign_str.encode())
-    print(sign_str)
-    ser.close()
-
-    ser.open()
-    ser.write(qr.encode())
-    print(qr)
-    ser.close()
-
-    ser.open()
-    ser.write(x_pos_str.encode())
-    print(x_pos)
-    ser.close()
+#     
+#     if angle < 0:
+#         sign = 0
+#         angle = -angle
+#     else:
+#         sign = 1
+#         angle = angle
+# 
+#     angle_str = str(int(angle))
+#     sign_str = str(int(sign))
+#     x_pos_str = str(int(x_pos))
+#     
+#     ser.open()
+#     ser.write(angle_str.encode())
+#     print(angle_str)
+#     ser.close()
+# 
+#     ser.open()
+#     ser.write(sign_str.encode())
+#     print(sign_str)
+#     ser.close()
+# 
+#     ser.open()
+#     ser.write(qr.encode())
+#     print(qr)
+#     ser.close()
+# 
+#     ser.open()
+#     ser.write(x_pos_str.encode())
+#     print(x_pos)
+#     ser.close()
     
     print('DATA TRANSMISSION')
     
