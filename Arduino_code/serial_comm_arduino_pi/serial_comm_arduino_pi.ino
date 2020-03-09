@@ -25,7 +25,7 @@ void loop()
     String x_pos_str = readString.substring(delimiter_2 + 1, delimiter_3);
 
     int angle = angle_str.toInt();
-    int qr = qr_str.toInt();
+    String qr = qr_str;
     int x_pos = x_pos_str.toInt();
     Serial.println(angle);
     Serial.println(qr);
