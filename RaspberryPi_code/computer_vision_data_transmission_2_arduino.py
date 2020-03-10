@@ -29,7 +29,7 @@ video_capture.set(cv.CAP_PROP_FOURCC,cv.VideoWriter_fourcc(*'MJPG'))
 
 font = cv.FONT_HERSHEY_PLAIN #font to be displayed on screen
 
-area_threshold = 10000
+area_threshold = 18000
 
 ang = 0
 ang_value = 0
@@ -94,14 +94,14 @@ def calculate_angle(thresh):
             
             #print('angle = '+ str(angle))
     
-            angle_int = int(angle)
+            angle_float = round(angle,3)
             #print('angle_int = '+str(angle_int))
-            angle_str = str(angle_int)
+            angle_str = str(angle_float)
             
             #print('angle_str = '+ str(angle_str))
-            cv.putText(crop_img, 'Angle ='+ str(angle_int),(400, 50), cv.FONT_HERSHEY_SIMPLEX, 1, (20, 220, 250), 4)    
+            cv.putText(crop_img, 'Angle ='+ str(angle_float),(400, 50), cv.FONT_HERSHEY_SIMPLEX, 1, (20, 220, 250), 4)    
     
-        return(angle_int)
+        return(angle_float)
 
 def line_follow(cx):
     if cx <= width/5:
@@ -142,37 +142,6 @@ def data_transmission(angle, qr, x_pos):
     ser.write(data.encode())
     print(data)
     ser.close()
-#     
-#     if angle < 0:
-#         sign = 0
-#         angle = -angle
-#     else:
-#         sign = 1
-#         angle = angle
-# 
-#     angle_str = str(int(angle))
-#     sign_str = str(int(sign))
-#     x_pos_str = str(int(x_pos))
-#     
-#     ser.open()
-#     ser.write(angle_str.encode())
-#     print(angle_str)
-#     ser.close()
-# 
-#     ser.open()
-#     ser.write(sign_str.encode())
-#     print(sign_str)
-#     ser.close()
-# 
-#     ser.open()
-#     ser.write(qr.encode())
-#     print(qr)
-#     ser.close()
-# 
-#     ser.open()
-#     ser.write(x_pos_str.encode())
-#     print(x_pos)
-#     ser.close()
     
     print('DATA TRANSMISSION')
     
