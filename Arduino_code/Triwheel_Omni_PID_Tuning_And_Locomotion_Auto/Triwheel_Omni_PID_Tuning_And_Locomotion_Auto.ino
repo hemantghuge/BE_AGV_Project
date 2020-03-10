@@ -24,20 +24,22 @@ int D7 = 31;
 int Green = 23;
 int Red = 24;
 int Blue = 25;
-int normal = 9;
-int slight = 7;
-int extreme = 9;
-int VL = 0;
+float normal = 0;
+float slight = 15;
+float extreme = 17;
+float VL = 0;
 int Buzzer = 49;
 int servo = 12;
 int count = 1;
 
 //variables for serial 3
-int angle = 0;
+float angle = 0;
 String qr;
 int x_pos = 0;
 
-
+int last_angle;
+int change_in_angle;
+int t_angle;
 
 // LCD pin declaration
 LiquidCrystal lcd(26, 27, 28, 29, 30, 31);
@@ -59,9 +61,9 @@ float PID = 0;
 float P, I, D;
 float preverror = 0;
 
-float kp = 3;
-float ki = 0.0001;
-float kd = 8;
+float kp = 2;
+float ki = 0.00005;
+float kd = 2;
 
 float setpoint = 0;
 // Function declarations
@@ -131,13 +133,13 @@ void loop() {
   reading = (avz) * 0.07;
   if (abs(avz) < 25)reading = 0;
   yaw = yaw + reading * timestep;
-  Serial.print("YAW  ");
-  Serial.println(yaw);
+  //  Serial.print("YAW:");
+  //  Serial.println(yaw);
 
-  
-  Serial.println("TIME");
+
+  Serial.print("TIME:");
   Serial.println(timestep);
-  
+
   //  if (SER_IP == 'X')
   //  {
   //    setpoint = (setpoint + 90);
@@ -160,22 +162,33 @@ void loop() {
     String qr_str = readString.substring(delimiter_1 + 1, delimiter_2);
     String x_pos_str = readString.substring(delimiter_2 + 1, delimiter_3);
 
-    angle = angle_str.toInt();
+    angle = angle_str.toFloat();
     qr = qr_str;
     x_pos = x_pos_str.toInt();
   }
 
   Serial.println("DATA RECEIVED");
+  Serial.print("angle:");
   Serial.println(angle);
+  Serial.print("qr:");
   Serial.println(qr);
+  Serial.print("x_pos:");
   Serial.println(x_pos);
   Serial.println("DATA RECEIVED");
 
+  change_in_angle = angle - last_angle;
+  last_angle = angle;
 
-  setpoint = - angle;
-  Serial.println("SetPoint");
-  Serial.println(setpoint);
+  Serial.print("change:");
+  Serial.println(change_in_angle);
+  delay(500);
 
+  if (change_in_angle > 10 || change_in_angle < -10 && (millis() - t_angle >= 1000))
+  {
+    t_angle = millis();
+    setpoint = setpoint - angle;
+    //change_in_angle = 0;
+  }
 
   //  if (SER_IP == 'F')
   //  {
@@ -187,36 +200,37 @@ void loop() {
   //    theta = 270 * M_PI / 180;
   //    count = 1;
   //  }
-  
-//  if (x_pos == 1) // Bot at extreme left
-//  {
-//    VL = extreme;
-//    theta = 0 * M_PI / 180; //shift bot right
-//  }
-//
-//  else if (x_pos == 2) // Bot at slight left
-//  {
-//    VL = slight;
-//    theta = 0 * M_PI / 180; //shift bot right
-//  }
-//
-//  else if (x_pos == 3) // Bot at center
-//  {
-//    VL = normal;
-//    theta = 90 * M_PI / 180;
-//  }
-//
-//  else if (x_pos == 4) // Bot at slight right
-//  {
-//    VL = slight;
-//    theta = 180 * M_PI / 180;
-//  }
-//
-//  else if (x_pos == 5) // Bot at extreme right
-//  {
-//    VL = extreme;
-//    theta = 180 * M_PI / 180;
-//  }
+
+  //  if (x_pos == 1) // Bot at extreme left
+  //  {
+  //    VL = extreme;
+  //    theta = 180 * M_PI / 180; //shift bot right
+  //  }
+  //
+  //  else if (x_pos == 2) // Bot at slight left
+  //  {
+  //    VL = slight;
+  //    theta = 180 * M_PI / 180; //shift bot right
+  //    Serial.println("X POS 2");
+  //  }
+  //
+  //  else if (x_pos == 3) // Bot at center
+  //  {
+  //    VL = normal;
+  //    theta = 90 * M_PI / 180;
+  //  }
+  //
+  //  else if (x_pos == 4) // Bot at slight right
+  //  {
+  //    VL = slight;
+  //    theta = 0 * M_PI / 180;
+  //  }
+  //
+  //  else if (x_pos == 5) // Bot at extreme right
+  //  {
+  //    VL = extreme;
+  //    theta = 0 * M_PI / 180;
+  //  }
 
   //  if (SER_IP == 'L')
   //  {
@@ -309,12 +323,16 @@ void loop() {
   //    count = 1;
   //  }
 
-  V = map(VL , 1, 9, 0, 255);
+  theta = 90 * M_PI / 180;
+  VL = 30;
+  Serial.print("VL:");
+  Serial.println(VL);
+  float V = map(VL , 0, 100, 0, 255);
   if (V == -1388)
   {
     V = 0;
   }
-  //  Serial.println(V);
+
   error = yaw - setpoint;
   P = kp * error;
   I = I + (error * ki);
@@ -322,18 +340,18 @@ void loop() {
   PID = P + I + D;
   preverror = error;
   lcd.setCursor(0, 0);
-  lcd.print(V1 + PID);
-  lcd.print("  ");
+  lcd.print("C_i_A=");
+  lcd.print(change_in_angle);
+  lcd.print(" yaw=");
   lcd.print(yaw);
   lcd.setCursor(0, 1);
-  lcd.print(V2 + PID);
-  lcd.print("  ");
-  lcd.print(V3 + PID);
+  lcd.print("set =");
+  lcd.print(setpoint);
+  lcd.print(" ang=");
+  lcd.print(angle);
 
-  if (SER_IP == 'S')
-  {
-    V = 0;
-  }
+  Serial.print("V:");
+  Serial.println(V);
   Vx = V * cos(theta);
   Vy = - V * sin(theta);
 

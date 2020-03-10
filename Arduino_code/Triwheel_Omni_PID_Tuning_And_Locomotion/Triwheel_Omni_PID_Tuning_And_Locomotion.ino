@@ -47,9 +47,9 @@ float error = 0;
 float PID = 0;
 float P, I, D;
 float preverror = 0;
-float kp = 10;
+float kp = 5;
 float ki = 0.00005;
-float kd = 50 ;
+float kd = 20;
 float setpoint = 0;
 // Function declarations
 void Clockwise();
@@ -232,6 +232,7 @@ void loop() {
   {
     V = 0;
   }
+  
   Serial.println(V);
   error = yaw - setpoint;
   P = kp * error;
