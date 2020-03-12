@@ -61,9 +61,17 @@ float PID = 0;
 float P, I, D;
 float preverror = 0;
 
-float kp = 2;
-float ki = 0.00005;
-float kd = 2;
+float kp_straight = 2;
+float ki_straight = 0.00005;
+float kd_straight = 2;
+
+float kp_angle = 0.2;
+float ki_angle = 0;
+float kd_angle = 0.2;
+
+float kp;
+float ki;
+float kd;
 
 float setpoint = 0;
 // Function declarations
@@ -124,6 +132,8 @@ void setup()
   lcd.print("         AGV");
 }
 
+int Straight = 2;
+
 void loop() {
 
   timer = millis();
@@ -181,14 +191,37 @@ void loop() {
 
   Serial.print("change:");
   Serial.println(change_in_angle);
-  delay(500);
 
-  if (change_in_angle > 10 || change_in_angle < -10 && (millis() - t_angle >= 1000))
+
+  if (abs(angle) < 10 && (millis() - t_angle >= 1000))
   {
     t_angle = millis();
+    kp = kp_straight;
+    ki = ki_straight;
+    kd = kd_straight;
+    setpoint = setpoint - angle;
+    Straight = 1;
+    //change_in_angle = 0;
+
+  }
+  if (abs(angle) > 10 && (millis() - t_angle >= 1000))
+  {
+    t_angle = millis();
+    kp = kp_angle;
+    ki = ki_angle;
+    kd = kd_angle;
+    Straight = 0;
     setpoint = setpoint - angle;
     //change_in_angle = 0;
   }
+
+  //  if (change_in_angle > 10 || change_in_angle < -10 && (millis() - t_angle >= 1000))
+  //  {
+  //    t_angle = millis();
+  //    kp =
+  //    setpoint = setpoint - angle;
+  //    //change_in_angle = 0;
+  //  }
 
   //  if (SER_IP == 'F')
   //  {
@@ -324,7 +357,7 @@ void loop() {
   //  }
 
   theta = 90 * M_PI / 180;
-  VL = 30;
+  VL = 20;
   Serial.print("VL:");
   Serial.println(VL);
   float V = map(VL , 0, 100, 0, 255);
@@ -352,6 +385,8 @@ void loop() {
 
   Serial.print("V:");
   Serial.println(V);
+
+
   Vx = V * cos(theta);
   Vy = - V * sin(theta);
 
@@ -359,6 +394,14 @@ void loop() {
   V2 = -(Vx * 0.5 + Vy * 0.866) + PID ;
   V3 = -Vx * 0.5 + Vy * 0.866 + PID;
 
+  Serial.print("V1:");
+  Serial.println(V1);
+
+  Serial.print("V2:");
+  Serial.println(V2);
+
+  Serial.print("V3:");
+  Serial.println(V3);
   if (V1 >= 0)
   {
     V1_Clockwise();
