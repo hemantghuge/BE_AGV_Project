@@ -9,6 +9,8 @@ Government College of Engineering and Research, Avasari (Khurd)
 ## Department
 Electronics and Telecommunication Engineering
 
+#### Click below for viewing YouTube video.
+
 [![YouTube video](https://img.youtube.com/vi/_118klFem0o/0.jpg)](https://www.youtube.com/watch?v=_118klFem0o)
 
 ## Mentor
